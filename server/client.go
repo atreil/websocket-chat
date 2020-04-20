@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -42,6 +43,8 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	name string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -54,9 +57,6 @@ func (c *Client) readPump() {
 		c.hub.unregister <- c
 		c.conn.Close()
 	}()
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
@@ -65,7 +65,7 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		message = []byte(fmt.Sprintf("[%v]: %v", c.name, string(bytes.TrimSpace(bytes.Replace(message, newline, space, -1)))))
 		c.hub.broadcast <- message
 	}
 }
@@ -116,6 +116,27 @@ func (c *Client) writePump() {
 	}
 }
 
+func (c *Client) init() {
+	c.conn.SetReadLimit(maxMessageSize)
+	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	_, name, err := c.conn.ReadMessage()
+	if err != nil {
+		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			log.Printf("error: %v", err)
+		}
+		c.hub.unregister <- c
+		c.conn.Close()
+		return
+	}
+	c.name = string(bytes.TrimSpace(bytes.Replace(name, newline, space, -1)))
+
+	// Allow collection of memory referenced by the caller by doing all work in
+	// new goroutines.
+	go c.writePump()
+	go c.readPump()
+}
+
 // serveWs handles websocket requests from the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -128,6 +149,5 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
-	go client.writePump()
-	go client.readPump()
+	go client.init()
 }
