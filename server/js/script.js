@@ -1,34 +1,56 @@
-window.onload = function () {
-    var conn;
+// State graph for client:
+//               start --||<-----------------------||
+//                       ||                        ||
+//                       \/                        ||
+//                 ---> init --- on success --> chat room
+//                 |     ||
+//                 |    error
+//                 |     \/
+//                 |------
 
+function enterInit() {
+    document.getElementById("login").hidden = false;
     document.getElementById("login").onsubmit = function () {
         var loginMsg = document.getElementById("login-msg");
 
-        if (name) {
-            return false;
-        }
-        if (!loginMsg.value) {
+        if (loginMsg.value.trim() === "") {
             return false;
         }
 
-        document.getElementById("login").hidden = true;
-        login(loginMsg.value);
+        if (window["WebSocket"]) {
+            document.getElementById("login").hidden = true;
+            enterChatRoom(loginMsg.value.trim());
+        } else {
+            alert("Your browser does not support WebSockets.");
+        }
+
         return false;
     };
+}
 
-    function login(name) {
-        document.getElementById("log-container").hidden = false;
-        var msg = document.getElementById("msg");
-        var log = document.getElementById("log");
-        
-        function appendLog(item) {
-            var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-            log.appendChild(item);
-            if (doScroll) {
-                log.scrollTop = log.scrollHeight - log.clientHeight;
-            }
+function enterChatRoom(name) {
+    function appendLog(item) {
+        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+        log.appendChild(item);
+        if (doScroll) {
+            log.scrollTop = log.scrollHeight - log.clientHeight;
         }
-        
+    }
+
+    document.getElementById("log-container").hidden = false;
+    var conn = new WebSocket("ws://" + document.location.host + "/ws");
+    conn.onopen = function (event) {
+        conn.send(name);
+
+        conn.onmessage = function (evt) {
+            var messages = evt.data.split('\n');
+            for (var i = 0; i < messages.length; i++) {
+                var item = document.createElement("div");
+                item.innerText = messages[i];
+                appendLog(item);
+            }
+        };
+
         document.getElementById("form").onsubmit = function () {
             if (!conn) {
                 return false;
@@ -40,32 +62,19 @@ window.onload = function () {
             msg.value = "";
             return false;
         };
-        
-        if (window["WebSocket"]) {
-            localConn = new WebSocket("ws://" + document.location.host + "/ws");
-            localConn.onopen = function (event) {
-                localConn.send(name);
-                conn = localConn
-                conn.onclose = function (evt) {
-                    var item = document.createElement("div");
-                    item.innerHTML = "<b>Connection closed.</b>";
-                    appendLog(item);
-                };
-    
-                conn.onmessage = function (evt) {
-                    var messages = evt.data.split('\n');
-                    for (var i = 0; i < messages.length; i++) {
-                        var item = document.createElement("div");
-                        item.innerText = messages[i];
-                        appendLog(item);
-                    }
-                };
-            }
 
-        } else {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-            appendLog(item);
-        }
+        return false;
     }
+
+    conn.onclose = function (evt) {
+        var item = document.createElement("div");
+        item.innerHTML = "<b>Connection closed.</b>";
+        appendLog(item);
+        document.getElementById("log-container").hidden = true;
+        enterInit();
+    };
+}
+
+window.onload = function () {
+    this.enterInit();
 }
