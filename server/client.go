@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -45,6 +46,26 @@ type Client struct {
 	send chan []byte
 
 	name string
+
+	// only touched by hub
+	ready bool
+
+	// only touched by hub
+	readyM sync.Mutex
+}
+
+// only touched by hub
+func (c *Client) initiliazed() bool {
+	c.readyM.Lock()
+	defer c.readyM.Unlock()
+	return c.ready
+}
+
+// only touched by hub
+func (c *Client) setInitiliazed() {
+	c.readyM.Lock()
+	defer c.readyM.Unlock()
+	c.ready = true
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -125,11 +146,11 @@ func (c *Client) init() {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 			log.Printf("error: %v", err)
 		}
-		c.hub.unregister <- c
 		c.conn.Close()
 		return
 	}
 	c.name = string(bytes.TrimSpace(bytes.Replace(name, newline, space, -1)))
+	c.hub.register <- c
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
@@ -145,7 +166,6 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

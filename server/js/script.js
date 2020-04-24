@@ -1,12 +1,12 @@
 // State graph for client:
 //               start --||<-----------------------||
-//                       ||                        ||
+//                       ||                      on close
 //                       \/                        ||
-//                 ---> init --- on success --> chat room
-//                 |     ||
-//                 |    error
-//                 |     \/
-//                 |------
+//                      init -- send name ----> chat room ----||
+//                                                 /\    send/receive
+//                                                 ||         ||
+//                                                 ||         \/
+//                                                 ||----------
 
 function enterInit() {
     document.getElementById("login").hidden = false;
