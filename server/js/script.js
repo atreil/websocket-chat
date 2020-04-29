@@ -9,16 +9,19 @@
 //                                                 ||----------
 
 function enterInit() {
-    document.getElementById("login").hidden = false;
-    document.getElementById("login").onsubmit = function () {
-        var loginMsg = document.getElementById("login-msg");
+    var loginElt = document.getElementById("login");
+    var loginMsg = document.getElementById("login-msg");
+
+    loginElt.hidden = false;
+    // loginMsg.focus();
+    loginElt.onsubmit = function () {
 
         if (loginMsg.value.trim() === "") {
             return false;
         }
 
         if (window["WebSocket"]) {
-            document.getElementById("login").hidden = true;
+            loginElt.hidden = true;
             enterChatRoom(loginMsg.value.trim());
         } else {
             alert("Your browser does not support WebSockets.");
@@ -38,6 +41,7 @@ function enterChatRoom(name) {
     }
 
     document.getElementById("log-container").hidden = false;
+    // document.getElementById("msg").focus();
     var conn = new WebSocket("ws://" + document.location.host + "/ws");
     conn.onopen = function (event) {
         conn.send(name);
