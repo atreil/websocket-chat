@@ -4,35 +4,34 @@
 <title>Chat Example</title>
 <script src="js/script.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-<style type="text/css">
-body,html {
-  height: 100%;
+</head>
+<style>
+body, html {
+    height: 100%;
+}
+.username-field {
+    font-size: 2.5rem;
 }
 </style>
-</head>
 <body>
-    <div class="container-fluid h-100 justify-content-center">
-            <div id="login" class="row justify-content-center align-middle h-100">
-                <form id="form-login" class="container align-self-center">
-                    <div class="form-group row justify-content-sm-center">
-                        <label for="login-msg" class="col-sm-2 col-form-label">Name</label>
-                        <input type="text" class="form-control col-sm-2" id="login-msg" size = "64" />
-                    </div>
-                    <div class="form-group row justify-content-sm-center">
-                        <button type="submit" class="btn-lg btn-primary col-sm-4 ">Enter</button>
-                    </div>
-                </form>
-            </div>
-            <div id="log-container" hidden>
-                <div id="log"></div>
-                <form id="form">
-                    <div class="form-group row">
-                        <button type="submit" class="btn btn-primary col-sm-1">Send</button>
-                        <input type="text" class="form-control col-sm-4" id="msg" size = "64" />
-                    </div>
-                </form>
-            </div>
+    <div class="container mt-5 h-100">
+        <div class="row container h-100 align-items-center">
+            <form id="login" class="form-group row h1 align-items-center justify-content-between">
+                <label for="login-msg" class="col-2 mb-3">Name</label>
+                <input type="text" class="form-control col-8 username-field mb-3" id="login-msg" size = "64" >
+                <button type="submit" class="btn-lg btn-primary col-12 p-4"><h1>Enter</h1></button>
+            </form>
         </div>
+        <div id="log-container" hidden>
+            <div id="log"></div>
+            <form id="form">
+                <div class="form-group row">
+                    <button type="submit" class="btn btn-primary col-sm-1">Send</button>
+                    <input type="text" class="form-control col-sm-4" id="msg" size = "64" />
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- JS modules for bootstrap -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
