@@ -11,10 +11,10 @@
 function enterInit() {
     var loginElt = document.getElementById("login");
     var loginMsg = document.getElementById("login-msg");
+    var loginForm = document.getElementById("login-form");
 
     loginElt.hidden = false;
-    // loginMsg.focus();
-    loginElt.onsubmit = function () {
+    loginForm.onsubmit = function () {
 
         if (loginMsg.value.trim() === "") {
             return false;
@@ -41,7 +41,6 @@ function enterChatRoom(name) {
     }
 
     document.getElementById("log-container").hidden = false;
-    // document.getElementById("msg").focus();
     var conn = new WebSocket("ws://" + document.location.host + "/ws");
     conn.onopen = function (event) {
         conn.send(name);
