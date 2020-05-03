@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Chat Example</title>
-<script src="js/script.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Chat Example</title>
+    <script src="js/script.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <style>
 body, html {
@@ -14,6 +14,7 @@ body, html {
 }
 #log {
     overflow-wrap: break-word;
+    overflow-y: auto;
 }
 </style>
 <body>
@@ -26,8 +27,8 @@ body, html {
             </form>
         </div>
         <div id="log-container" class="row container h-100" hidden>
-            <div class="row h1 mw-100">
-                <div id="log" class="log col-12"></div>
+            <div class="row h1 mw-100 mh-100">
+                <div id="log" class="log col-12 mh-100"></div>
                 <form id="form" class="form-group col-12 align-self-end">
                     <div class="row">
                         <button type="submit" class="btn-lg btn-primary col-2"><h1>Send</h1></button>
